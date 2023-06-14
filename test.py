@@ -1,174 +1,143 @@
-# ================================================================================
-# This script generate the file list [file_index.txt] of E:\Video_Class
-# ================================================================================
-import os
-import sys
+fn = 'test_modify.txt'
+key_words = 'str - 6'
 
-ScriptPath = os.path.abspath(__file__)
-ScriptDir = os.path.dirname(ScriptPath)
 
-# import time
-# for i in range(10):
-#     time.sleep(0.5)
-#     # print('\r', 'count:' + str(i), end='', flush=True)
-#     sys.stdout.write('\rcount:' + str(i))
+def write_ref_file():
+    with open(fn, 'w') as fid:
+        info = ['str - ' + str(i) + '\n' for i in range(10)]
+        fid.writelines(info)
 
-#============================================================
-#+ string list sort
-#============================================================
-def StrListSort(str_list: list, dic_py: dict = None, dic_bh: dict = None):
 
-    # Dict Init
-    def dic_init(ref_fp: str) -> dict:
-        dic = dict()
-        with open(file=ref_fp, mode='r', encoding='UTF-8') as fh:
-            lines = fh.read().splitlines()
-            n = len(lines)
-            for i in range(0, n - 1):
-                # split and take record to dictionary
-                tmpKey, tmpVal = lines[i].split('\t', 1)
-                dic[tmpKey] = tmpVal
+def update_file():
+    with open(fn, "r+") as fid:
+        cursor = 0
+        line = fid.readline()
+        while line:
+            if line.find(key_words) != -1:
+                print(key_words)
+                print(line)
+                # read to end
+                rest_part = fid.read()
+                # seek to key line
+                fid.seek(cursor)
+                # delete the rest part
+                fid.truncate()
+                # update key line
+                line += ' '.join([key_words]*5) + '\n'
 
-        return dic
-
-    # Dict Search
-    def dic_search(dic: dict, uchar: str) -> str:
-
-        # find within ref list
-        # if no item matches,
-        # it should be an 0-9 or a-z char, keep original
-        value = dic.get(uchar)
-        if value == None:
-            value = uchar
-        return value
-
-    # ==================================================
-    # char compare
-    # ==================================================
-    def comp_char(charA: str, charB: str) -> int:
-        if charA == charB:
-            return -1
-        pyA = dic_search(dic_py, charA)
-        pyB = dic_search(dic_py, charB)
-        if pyA > pyB:
-            # charA > charB [order A > order B]
-            return 1
-        elif pyA < pyB:
-            # charA < charB
-            return 0
-        else:
-            bhA = dic_search(dic_bh, charA)
-            bhB = dic_search(dic_bh, charB)
-            if bhA >= bhB:
-                return 1
-            elif bhA < bhB:
-                return 0
-
-    # ==================================================
-    # string compare
-    # ==================================================
-    def comp_str(strA: str, strB: str) -> int:
-        # strA = A.encode('utf-8').decode('utf-8')
-        # strB = B.encode('utf-8').decode('utf-8')
-
-        n = min(len(strA), len(strB))
-        i = 0
-        while i < n:
-            rst = comp_char(strA[i], strB[i])
-            if rst == -1:
-                # case for first N identical chars charA[i] == charB[i]
-                i = i + 1
-                if i == n:
-                    if len(strA) > len(strB):
-                        # strA > strB  [order A > order B]
-                        rst = 1
-                    else:
-                        # strA < strB
-                        rst = 0
-            else:
-                # case for first different
-                # rst will be 1 charA[i] >= charB[i]
-                #          or 0 charA[i] <  charB[i]
+                fid.write(line)
+                fid.write(rest_part)
                 break
-        return rst
 
-    #
-    # Main Prog Start Here
-    #
+            cursor = fid.tell() 
+            line = fid.readline()
 
-    # init two dicts
-    if dic_py is None:
-        fp = os.path.join(ScriptDir, 'ref_py.dat')
-        dic_py = dic_init(ref_fp=fp)
-    if dic_bh is None:
-        fp = os.path.join(ScriptDir, 'ref_bh.dat')
-        dic_bh = dic_init(ref_fp=fp)
+write_ref_file()
+update_file()
 
-    # sort and loop to each string
-    # check each string from 2nd one
-    # figure out if them can pop to from one by one 
-    n = len(str_list)
-    disp_num = 100
-    disp_interval = n/disp_num
-    if disp_interval < 1:
-        disp_interval = int(1)
-    else:
-        disp_interval = int(disp_interval)
-    for i in range(1, n):
-        if i % disp_interval == 0:
-            sys.stdout.write('\r -->> so far: {:5.2f}% {}/{}'.format(i/n*100, i, n))
+# def add_devices():
+#     # no need to keep our files open while users provide their input
+#     code = input("Enter device code: ")
+#     amount = int(input("How many devices you are adding: "))
+#     # you might want to validate the amount before converting to integer, tho
+#     with open("uredjaji.txt", "r+") as f:
+#         current_position = 0  # keep track of our current position in the file
+#         line = f.readline()  # we need to do it manually for .tell() to work
+#         while line:
+#             # no need to parse the whole line to check for the code
+#             if line[:len(code) + 1] == code + ":":  # code found
+#                 remaining_content = f.read()  # read the rest of the file first
+#                 f.seek(
+#                     current_position)  # seek back to the current line position
+#                 f.truncate(
+#                 )  # delete the rest of the file, including the current line
+#                 line = line.rstrip()  # clear out the whitespace at the end
+#                 amount_index = line.rfind(
+#                     ":") + 1  # find the amount index position
+#                 current_amount = int(line[amount_index:])  # get our amount
+#                 # slice out the old amount, replace with the new:
+#                 line = line[:amount_index] + str(current_amount +
+#                                                  amount) + "\n"
+#                 f.write(line)  # write it back to the file
+#                 f.write(remaining_content)  # write the remaining content
+#                 return  # done!
+#             current_position = f.tell()  # cache our current position
+#             line = f.readline()  # get the next line
+#     print("Invalid device code: {}".format(code))
 
-        # main sort code
-        tmp = str_list[i]
-        j = i
-        # jump out when first strList[j - 1] < tmp meet
-        while j > 0 and comp_str(str_list[j - 1], tmp):
-            # move all strings one step right when strList[j - 1] > tmp
-            str_list[j] = str_list[j - 1]
-            j -= 1
-        # let tmp as the Nth string, 
-        # after while loop break:
-        # case 1: tmp > str_list[j - 1], indicates [tmp] > some string original 
-        #         placed in front of her
-        # case 2: j == 0, indicates: [tmp] is minimal than all her pioneers 
-        # 
-        # when whie bread, put current [tmp] to the new loc
-        str_list[j] = tmp
+# ============================================================
+# ============================================================
+# ============================================================
+# ============================================================
+# ============================================================
+# ============================================================
 
-    sys.stdout.write('\r -->> so far: {:5.2f}% {}/{}\n'.format(100, n, n))
-    return str_list
+# import matplotlib.pyplot as plt
+# import numpy as np
 
+# import matplotlib
+# matplotlib.use('TkAgg')
 
+# x = np.arange(1,10,0.1)
+# y = x**2
+# z = x**3+5
 
-pc_path = 'E:\Video_Class'
-start_path = 'F:\D4T_to_D2T\Video_Class'
+# plt.ion() #开启interactive mode
 
-rst_fp = os.path.join(pc_path, 'file_index.txt')
+# plt.figure(1)
+# plt.plot(x,y)   #立即绘制图像1
+# # plt.pause(20)    #等待2s但是不会关闭图像1
 
-item_lists = []
+# plt.figure(2)
+# plt.plot(x,z)   #立即绘制图像2
+# # plt.pause(2)    #等待2s关闭图像1，2
 
-for root, dirs, files in os.walk(top=start_path):
-    for dir in dirs:
-        # print(' Dir : {}'.format(os.path.join(root, dir)))
-        item_lists.append(os.path.join(root, dir))
-    for file in files:
-        # print(' File: {}'.format(os.path.join(root, file)))
-        item_lists.append(os.path.join(root, file))
+# plt.ioff()      #关闭interactive mode
+# plt.show()      #显示图像1,2并且阻塞程序
 
-StrListSort(item_lists)
+# ============================================================
+# ============================================================
+# ============================================================
+# ============================================================
+# ============================================================
+# ============================================================
 
-with open(rst_fp, 'w', encoding='utf-8') as fp:
-    fp.writelines('\n'.join(item_lists))
+# from tkinter import *
+# import calendar
 
+# root = Tk()
+# # root.geometry("400x300")
+# root.title("Calendar")
 
-print('ok')
+# # Function
 
-# for root, dirs, files in os.walk(top=start_path):
-#     for name in dirs:
-#         tempName = name
-#         if tempName in dirs_4_del:
-#             dirpath = os.path.join(root, name)
-#             tempStr = ' -> Del Dir: ' + dirpath
-#             print(tempStr)
-#             if not debug_mode:
-#                 shutil.rmtree(path=dirpath)
+# def text():
+#     month_int = int(month.get())
+#     year_int = int(year.get())
+#     cal = calendar.month(year_int, month_int)
+#     textfield.delete(0.0, END)
+#     textfield.insert(INSERT, cal)
+
+# # Creating Labels
+# label1 = Label(root, text="Month:")
+# label1.grid(row=0, column=0)
+
+# label2 = Label(root, text="Year:")
+# label2.grid(row=0, column=1)
+
+# # Creating spinbox
+# month = Spinbox(root, from_=1, to=12, width=8)
+# month.grid(row=1, column=0, padx=5)
+
+# year = Spinbox(root, from_=2000, to=2100, width=10)
+# year.grid(row=1, column=1, padx=10)
+
+# # Creating Button
+# button = Button(root, text="Go", command=text)
+# button.grid(row=1, column=2, padx=10)
+
+# # Creating Textfield
+# textfield = Text(root, width=25, height=10, fg="red")
+# textfield.grid(row=2, columnspan=2)
+
+# root.mainloop()

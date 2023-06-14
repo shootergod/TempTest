@@ -13,9 +13,11 @@ ScriptDir = os.path.dirname(ScriptPath)
 #     # print('\r', 'count:' + str(i), end='', flush=True)
 #     sys.stdout.write('\rcount:' + str(i))
 
-#============================================================
-#+ string list sort
-#============================================================
+# ============================================================
+# string list sort
+# ============================================================
+
+
 def StrListSort(str_list: list, dic_py: dict = None, dic_bh: dict = None):
 
     # Dict Init
@@ -106,7 +108,7 @@ def StrListSort(str_list: list, dic_py: dict = None, dic_bh: dict = None):
 
     # sort and loop to each string
     # check each string from 2nd one
-    # figure out if them can pop to from one by one 
+    # figure out if them can pop to from one by one
     n = len(str_list)
     disp_num = 100
     disp_interval = n/disp_num
@@ -116,7 +118,8 @@ def StrListSort(str_list: list, dic_py: dict = None, dic_bh: dict = None):
         disp_interval = int(disp_interval)
     for i in range(1, n):
         if i % disp_interval == 0:
-            sys.stdout.write('\r -->> so far: {:5.2f}% {}/{}'.format(i/n*100, i, n))
+            sys.stdout.write(
+                '\r -->> so far: {:5.2f}% {}/{}'.format(i/n*100, i, n))
 
         # main sort code
         tmp = str_list[i]
@@ -126,49 +129,51 @@ def StrListSort(str_list: list, dic_py: dict = None, dic_bh: dict = None):
             # move all strings one step right when strList[j - 1] > tmp
             str_list[j] = str_list[j - 1]
             j -= 1
-        # let tmp as the Nth string, 
+        # let tmp as the Nth string,
         # after while loop break:
-        # case 1: tmp > str_list[j - 1], indicates [tmp] > some string original 
+        # case 1: tmp > str_list[j - 1], indicates [tmp] > some string original
         #         placed in front of her
-        # case 2: j == 0, indicates: [tmp] is minimal than all her pioneers 
-        # 
+        # case 2: j == 0, indicates: [tmp] is minimal than all her pioneers
+        #
         # when whie bread, put current [tmp] to the new loc
         str_list[j] = tmp
 
     sys.stdout.write('\r -->> so far: {:5.2f}% {}/{}\n'.format(100, n, n))
     return str_list
 
+# ============================================================
+# test block
+# ============================================================
+if __name__ == '__main__':
+    pc_path = 'E:\Video_Class'
+    start_path = 'F:\D4T_to_D2T\Video_Class'
+
+    rst_fp = os.path.join(pc_path, 'file_index.txt')
+
+    item_lists = []
+
+    for root, dirs, files in os.walk(top=start_path):
+        for dir in dirs:
+            # print(' Dir : {}'.format(os.path.join(root, dir)))
+            item_lists.append(os.path.join(root, dir))
+        for file in files:
+            # print(' File: {}'.format(os.path.join(root, file)))
+            item_lists.append(os.path.join(root, file))
+
+    StrListSort(item_lists)
+
+    with open(rst_fp, 'w', encoding='utf-8') as fp:
+        fp.writelines('\n'.join(item_lists))
 
 
-pc_path = 'E:\Video_Class'
-start_path = 'F:\D4T_to_D2T\Video_Class'
+    print('ok')
 
-rst_fp = os.path.join(pc_path, 'file_index.txt')
-
-item_lists = []
-
-for root, dirs, files in os.walk(top=start_path):
-    for dir in dirs:
-        # print(' Dir : {}'.format(os.path.join(root, dir)))
-        item_lists.append(os.path.join(root, dir))
-    for file in files:
-        # print(' File: {}'.format(os.path.join(root, file)))
-        item_lists.append(os.path.join(root, file))
-
-StrListSort(item_lists)
-
-with open(rst_fp, 'w', encoding='utf-8') as fp:
-    fp.writelines('\n'.join(item_lists))
-
-
-print('ok')
-
-# for root, dirs, files in os.walk(top=start_path):
-#     for name in dirs:
-#         tempName = name
-#         if tempName in dirs_4_del:
-#             dirpath = os.path.join(root, name)
-#             tempStr = ' -> Del Dir: ' + dirpath
-#             print(tempStr)
-#             if not debug_mode:
-#                 shutil.rmtree(path=dirpath)
+    # for root, dirs, files in os.walk(top=start_path):
+    #     for name in dirs:
+    #         tempName = name
+    #         if tempName in dirs_4_del:
+    #             dirpath = os.path.join(root, name)
+    #             tempStr = ' -> Del Dir: ' + dirpath
+    #             print(tempStr)
+    #             if not debug_mode:
+    #                 shutil.rmtree(path=dirpath)
